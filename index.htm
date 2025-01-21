@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="visualizer-container">
+        <h1>Visualizer</h1>
+        <div class="led-bar-container" id="ledContainer"></div>
+
+        <div class="controls">
+            <input type="file" id="fileInput" accept="audio/*" multiple>
+        </div>
+
+        <div class="audioplayer">
+            <audio id="audioPlayer" controls>
+                Seu navegador não suporta o elemento de áudio.
+            </audio>
+
+            <div class="navigation-buttons">
+                <button id="prevButton">⏮</button>
+                <button id="nextButton">⏭</button>
+            </div>
+
+            <div class="volume-control">
+                <label for="volumeSlider">Volume:</label>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+        </div>
+    </div>
+
+    <ul class="music-list" id="musicList"></ul>
+    <button id="toggleButton" class="toggle-button">›</button>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
