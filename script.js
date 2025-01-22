@@ -47,6 +47,17 @@ function updateMusicList() {
         li.classList.toggle('playing', index === currentMusicIndex);
         li.addEventListener('click', () => playMusic(index));
         li.setAttribute('draggable', true);
+
+        // Adiciona o botão de exclusão
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-button';
+        deleteButton.innerHTML = '×';
+        deleteButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Previne que o clique ative a música
+            deleteMusic(index);
+        });
+
+        li.appendChild(deleteButton);
         musicListElement.appendChild(li);
     });
 
@@ -60,6 +71,15 @@ function playMusic(index) {
         audioPlayer.src = musicList[index].url;
         audioPlayer.play();
         updateMusicList();
+        
+        // Atualiza o texto da música
+        const songText = document.getElementById('songText');
+        songText.textContent = musicList[index].name;
+        
+        // Reinicia a animação
+        songText.style.animation = 'none';
+        songText.offsetHeight; // Força um reflow
+        songText.style.animation = 'scrollText 15s linear infinite';
     }
 }
 
@@ -105,8 +125,8 @@ audioPlayer.addEventListener('play', () => {
         analyser.getByteFrequencyData(dataArray);
 
         for (let i = 0; i < numBars; i++) {
-            const value = dataArray[i] * 1;
-            const height = Math.min(value, maxLedHeight);
+            const intensity = dataArray[i] * 0.8;
+            const height = Math.min(intensity, maxLedHeight);
 
             ledBars[i].style.height = `${Math.max(height, 1)}px`;
             ledBars[i].style.backgroundColor = `rgb(${Math.min(255, height)}, ${Math.min(255, 255 - height)}, 0)`;
@@ -115,6 +135,42 @@ audioPlayer.addEventListener('play', () => {
 
     animate();
 });
+
+function deleteMusic(index) {
+    // Se a música que está sendo excluída é a atual
+    if (index === currentMusicIndex) {
+        audioPlayer.pause();
+        // Se há próxima música, toca ela
+        if (index < musicList.length - 1) {
+            currentMusicIndex = index;
+            // Remove a música e depois toca a próxima
+            musicList.splice(index, 1);
+            playMusic(currentMusicIndex);
+        } else if (index > 0) {
+            // Se não há próxima, mas há anterior, toca a anterior
+            currentMusicIndex = index - 1;
+            // Remove a música e depois toca a anterior
+            musicList.splice(index, 1);
+            playMusic(currentMusicIndex);
+        } else {
+            // Se não há nem próxima nem anterior
+            musicList.splice(index, 1);
+            currentMusicIndex = -1;
+            audioPlayer.src = '';
+        }
+    } else {
+        // Se a música excluída está antes da atual, ajusta o índice
+        if (index < currentMusicIndex) {
+            currentMusicIndex--;
+        }
+        musicList.splice(index, 1);
+    }
+
+    // Revoga a URL do objeto para liberar memória
+    URL.revokeObjectURL(musicList[index]?.url);
+
+    updateMusicList();
+}
 
 function makeDraggable() {
     const listItems = musicListElement.querySelectorAll('li');
@@ -162,10 +218,10 @@ function makeDraggable() {
 // Modifica a função que alterna a visibilidade da lista
 toggleButton.addEventListener('click', () => {
     musicListElement.classList.toggle('hidden');
-    
+
     // Verifica se está em um dispositivo móvel (largura menor que 768px)
     const isMobile = window.innerWidth <= 768;
-    
+
     if (isMobile) {
         toggleButton.textContent = musicListElement.classList.contains('hidden') ? '↑' : '↓';
     } else {
@@ -177,7 +233,7 @@ toggleButton.addEventListener('click', () => {
 window.addEventListener('resize', () => {
     const isMobile = window.innerWidth <= 768;
     const isHidden = musicListElement.classList.contains('hidden');
-    
+
     if (isMobile) {
         toggleButton.textContent = isHidden ? '↑' : '↓';
     } else {
@@ -186,4 +242,4 @@ window.addEventListener('resize', () => {
 });
 
 // Inicializa o volume do audio player em 50%
-audioPlayer.volume = 0.5; 
+audioPlayer.volume = 0.5;
