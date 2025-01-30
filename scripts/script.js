@@ -72,9 +72,11 @@ function playMusic(index) {
         audioPlayer.play();
         updateMusicList();
         
-        // Atualiza o texto da música
+        // Atualiza o texto da música e o título da página
         const songText = document.getElementById('songText');
-        songText.textContent = musicList[index].name;
+        const musicName = musicList[index].name;
+        songText.textContent = musicName;
+        document.title = musicName + ' - Meu Player de Música';
         
         // Reinicia a animação
         songText.style.animation = 'none';
@@ -134,6 +136,11 @@ audioPlayer.addEventListener('play', () => {
     }
 
     animate();
+});
+
+// Adicionar este listener para restaurar o título quando a música terminar
+audioPlayer.addEventListener('pause', () => {
+    document.title = 'Visualizer';
 });
 
 function deleteMusic(index) {
@@ -243,3 +250,5 @@ window.addEventListener('resize', () => {
 
 // Inicializa o volume do audio player em 50%
 audioPlayer.volume = 0.5;
+
+
